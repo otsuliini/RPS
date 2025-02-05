@@ -10,6 +10,7 @@ class HandDetector:
         self.mp_draw = mp.solutions.drawing_utils
 
     def detect_hands(self):
+        hand_landmarks_list = []
         while self.cap.isOpened():
             ret, frame = self.cap.read()
             if not ret:
@@ -21,9 +22,10 @@ class HandDetector:
             # Process the frame
             results = self.hands.process(rgb_frame)
 
-            # Draw hand landmarks
+            # Collect hand landmarks
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
+                    hand_landmarks_list.append(hand_landmarks)
                     self.mp_draw.draw_landmarks(frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
 
             # Display the frame
@@ -34,8 +36,9 @@ class HandDetector:
         # Release resources
         self.cap.release()
         cv2.destroyAllWindows()
+        return hand_landmarks_list
 
 # Usage
 video_path = "path_to_video.mp4"  # Update with the correct path
 detector = HandDetector(video_path)
-detector.detect_hands()
+landmarks = detector.detect_hands()
